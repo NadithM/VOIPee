@@ -1,3 +1,5 @@
+import org.junit.Test;
+
 import javax.sound.sampled.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,8 +14,7 @@ public class Mic implements Runnable {
     int PORT;
     DatagramSocket socket;
     String HOST;
-    public boolean oncall = false;
-    boolean stopCapture = false;
+    public boolean stopCapture = false;
 
     ByteArrayOutputStream byteArrayOutputStream;
     AudioFormat audioFormat;
@@ -73,7 +74,7 @@ public class Mic implements Runnable {
             FloatControl control = (FloatControl)sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
             control.setValue(control.getMaximum());
 
-            captureAndPlay(); //playing the audio
+            captureAndSend(); //sending the audio
 
         } catch (LineUnavailableException e) {
             e.printStackTrace();
@@ -82,7 +83,7 @@ public class Mic implements Runnable {
 
     }
 
-    private void captureAndPlay() {
+    private void captureAndSend() {
 
         stopCapture = false;
 
@@ -101,6 +102,7 @@ public class Mic implements Runnable {
             InetAddress host = InetAddress.getByName( HOST ) ;
             DatagramPacket packet = new DatagramPacket(tempBuffer, tempBuffer.length, host, PORT);
             socket.send( packet ) ;
+            System.out.println(packet);
         }
         catch( Exception e ) {
                 System.out.println( e ) ;
@@ -111,9 +113,9 @@ public class Mic implements Runnable {
     }
 
     public void run(){
-        oncall = true;
-        while(oncall) {
-            captureAudio();
-        }
+        captureAudio();
+
     }
+
+
 }
