@@ -16,7 +16,7 @@ public class Mic implements Runnable {
     int PORT;
     DatagramSocket socket;
     String HOST;
-    public boolean stopCapture = false;
+    public volatile boolean stopCapture = false;
 
     ByteArrayOutputStream byteArrayOutputStream;
     AudioFormat audioFormat;
@@ -86,9 +86,15 @@ public class Mic implements Runnable {
 
         int readCount;
         while (!stopCapture) {
-            readCount = targetDataLine.read(tempBuffer, 0, tempBuffer.length);  //capture sound into tempBuffer
-            if (readCount > 0) {
-                send();
+            try {
+                readCount = targetDataLine.read(tempBuffer, 0, tempBuffer.length);  //capture sound into tempBuffer
+                if (readCount > 0) {
+                    send();
+                }
+            }
+            catch( Exception e ) {
+                System.out.println(e) ;
+                e.printStackTrace();
             }
         }
 
@@ -96,15 +102,17 @@ public class Mic implements Runnable {
 
     private void send() {
         try {
-            InetAddress host = InetAddress.getByName( HOST ) ;
+            InetAddress host = InetAddress.getByName(HOST);
             DatagramPacket packet = new DatagramPacket(tempBuffer, tempBuffer.length, host, PORT);
-            socket.send( packet ) ;
+            socket.send(packet);
             //System.out.println(packet);
         }
         catch( Exception e ) {
                 System.out.println(e) ;
             e.printStackTrace();
             }
+
+
             // Send the packet
 
     }
