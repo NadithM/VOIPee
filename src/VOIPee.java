@@ -23,8 +23,10 @@ public class VOIPee{
     }
 
     public void call () throws SocketException {
-        Mic newcallmic = new Mic(PORT, new DatagramSocket(), "127.0.0.1" );
-        newcallmic.run();
+        Speaker newcallSpeaker = new Speaker(new DatagramSocket(PORT));
+        new Thread(newcallSpeaker).start();
+        Mic newcallmic = new Mic(PORT, "127.0.0.1" );
+        new Thread(newcallmic).start();
     }
 
 }

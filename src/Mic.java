@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 
 /**
  * Created by Rama on 2/25/2016.
  */
 public class Mic implements Runnable {
+
     int PORT;
     DatagramSocket socket;
     String HOST;
@@ -23,9 +25,9 @@ public class Mic implements Runnable {
     SourceDataLine sourceDataLine;
     byte [] tempBuffer = new byte[500];
 
-    public Mic(int port, DatagramSocket sock, String IP){
+    public Mic(int port, String IP) throws SocketException {
         this.PORT = port;
-        this.socket = sock;
+        this.socket = new DatagramSocket();
         this.HOST = IP;
     }
 
@@ -65,14 +67,9 @@ public class Mic implements Runnable {
             targetDataLine.open(audioFormat);
             targetDataLine.start();
 
-            DataLine.Info dataLineInfo1 = new DataLine.Info(SourceDataLine.class, audioFormat);
-            sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo1);
-            sourceDataLine.open(audioFormat);
-            sourceDataLine.start();
 
-            //Setting the maximum volume
-            FloatControl control = (FloatControl)sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
-            control.setValue(control.getMaximum());
+
+
 
             captureAndSend(); //sending the audio
 
@@ -102,10 +99,10 @@ public class Mic implements Runnable {
             InetAddress host = InetAddress.getByName( HOST ) ;
             DatagramPacket packet = new DatagramPacket(tempBuffer, tempBuffer.length, host, PORT);
             socket.send( packet ) ;
-            System.out.println(packet);
+            //System.out.println(packet);
         }
         catch( Exception e ) {
-                System.out.println( e ) ;
+                System.out.println(e) ;
             e.printStackTrace();
             }
             // Send the packet
