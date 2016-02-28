@@ -1,24 +1,21 @@
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 
 /**
  * Created by Nadith on 2/24/2016.
  */
 public class VOIPee{
 
-    private static final int PORT = 20000;
+    public static final int PORT = 20000;
     public boolean oncall = false;
-    private Thread threadSpeaker;
-    private Thread threadMic;
+    public Thread threadSpeaker;
+    public Thread threadMic;
+    public Thread threadStates;
+    public static DatagramSocket socket=null;
+
+    public static void main(String[] args)  {
 
 
-    public static void main(String[] args) throws SocketException {
 
-
-        VOIPee voice = new VOIPee();
-        voice.call("127.0.0.1");
     }
 
 
@@ -26,18 +23,40 @@ public class VOIPee{
 
     }
 
+    public void StartStates(String IP,DatagramSocket socket) throws SocketException{
+
+        States userState = new States("127.0.0.1",socket);
+        threadStates = new Thread(userState);
+        threadStates.start();
+
+
+    }
+
     public void call (String IP) throws SocketException {
-        if(!oncall) {
-            oncall = connectionSetup(IP);
-            if(oncall) {
-                Speaker newcallSpeaker = new Speaker(new DatagramSocket(PORT));
-                threadSpeaker = new Thread(newcallSpeaker);
-                threadSpeaker.start();
-                Mic newcallmic = new Mic(PORT, IP);
-                threadMic = new Thread(newcallmic);
-                threadMic.start();
-            }
-        }
+
+
+           if (!oncall) {
+               oncall = connectionSetup(IP);
+               if (!oncall) {//mekath not krama on wenawa
+                   Speaker newcallSpeaker = new Speaker(new DatagramSocket(PORT));
+                   threadSpeaker = new Thread(newcallSpeaker);
+                   threadSpeaker.start();
+                   Mic newcallmic = new Mic(PORT, IP);
+                   threadMic = new Thread(newcallmic);
+                   threadMic.start();
+
+               }
+           }
+
+
+
+
+    }
+    public void end () throws SocketException {
+
+      // VOIPee.socket=new DatagramSocket(VOIPee.PORT) ;
+
+
     }
 
     private boolean connectionSetup(String IP)  {
@@ -67,4 +86,9 @@ public class VOIPee{
         }
         return false;
     }
+
+
+
+
 }
+

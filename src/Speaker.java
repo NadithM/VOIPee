@@ -13,7 +13,7 @@ public class Speaker implements Runnable {
 
     DatagramSocket socket;
 
-    boolean stopPlay = false;
+    public volatile boolean stopPlay = false;
     ByteArrayOutputStream byteArrayOutputStream;
     AudioFormat audioFormat;
     //TargetDataLine targetDataLine;
@@ -24,6 +24,7 @@ public class Speaker implements Runnable {
 
     public Speaker(DatagramSocket sock){
         this.socket = sock;
+        this.stopPlay=false;
     }
 
     private AudioFormat getAudioFormat() {
@@ -95,9 +96,19 @@ public class Speaker implements Runnable {
 
 
     public void run(){
-        speakerStart();
-        captureAndPlay();
+
+            speakerStart();
+            captureAndPlay();
+
+
     }
+
+    public void kill() {
+
+        this.stopPlay = true;
+    }
+
+
 
 
 

@@ -1,4 +1,4 @@
-import org.junit.Test;
+
 
 import javax.sound.sampled.*;
 import java.io.ByteArrayOutputStream;
@@ -13,10 +13,10 @@ import java.net.SocketException;
  */
 public class Mic implements Runnable {
 
-    int PORT;
+    private int PORT;
     DatagramSocket socket;
     String HOST;
-    public volatile boolean stopCapture = false;
+    private volatile boolean stopCapture = false;
 
     ByteArrayOutputStream byteArrayOutputStream;
     AudioFormat audioFormat;
@@ -29,6 +29,7 @@ public class Mic implements Runnable {
         this.PORT = port;
         this.socket = new DatagramSocket();
         this.HOST = IP;
+        this.stopCapture=false;
     }
 
     private AudioFormat getAudioFormat() {
@@ -122,5 +123,9 @@ public class Mic implements Runnable {
 
     }
 
+    public void kill() {
+
+        this.stopCapture = true;
+    }
 
 }
