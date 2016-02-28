@@ -150,11 +150,7 @@ public class GUI extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
 
-        try {
-            voice.end();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+        voice.end();
         States.state="waitforcall";
 
         jLabel1.setBackground(new java.awt.Color(0,153,0));
