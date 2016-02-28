@@ -3,24 +3,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 /**
  * Created by Rama on 2/27/2016.
  */
 public class Speaker implements Runnable {
 
-    DatagramSocket socket;
+    private DatagramSocket socket;
 
     public volatile boolean stopPlay = false;
-    ByteArrayOutputStream byteArrayOutputStream;
-    AudioFormat audioFormat;
+    private ByteArrayOutputStream byteArrayOutputStream;
+    private AudioFormat audioFormat;
     //TargetDataLine targetDataLine;
     //AudioInputStream audioInputStream;
-    SourceDataLine sourceDataLine;
+    private SourceDataLine sourceDataLine;
     byte tempBuffer[] = new byte[500];
-    private int packetsize = 500;
 
     public Speaker(DatagramSocket sock){
         this.socket = sock;
@@ -77,7 +74,8 @@ public class Speaker implements Runnable {
     private void captureAndPlay() {
         byteArrayOutputStream = new ByteArrayOutputStream();
         stopPlay = false;
-        DatagramPacket packet = new DatagramPacket( new byte[packetsize], packetsize ) ;
+        int packetsize = 500;
+        DatagramPacket packet = new DatagramPacket( new byte[packetsize], packetsize) ;
         try {
 
             while (!stopPlay) {

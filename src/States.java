@@ -7,7 +7,7 @@ public class States implements Runnable {
 
     private final static int packetsize = 500;
     public static String state="waitforcall";
-    public DatagramSocket socket=null;
+    private DatagramSocket socket=null;
     private String ip;
     private int PORT;
 

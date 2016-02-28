@@ -189,8 +189,8 @@ public class GUI extends javax.swing.JFrame {
     public static void main(String args[])throws SocketException {
 
         voice =new VOIPee();
-        voice.socket=new DatagramSocket(VOIPee.PORT);
-        voice.StartStates("127.0.0.1",VOIPee.socket);
+        VOIPee.socket =new DatagramSocket(VOIPee.PORT);
+        voice.StartStates("127.0.0.1", VOIPee.socket);
 
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

@@ -2,7 +2,6 @@
 
 import javax.sound.sampled.*;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -14,15 +13,15 @@ import java.net.SocketException;
 public class Mic implements Runnable {
 
     private int PORT;
-    DatagramSocket socket;
-    String HOST;
+    private DatagramSocket socket;
+    private String HOST;
     public volatile boolean stopCapture = false;
 
     ByteArrayOutputStream byteArrayOutputStream;
-    AudioFormat audioFormat;
-    TargetDataLine targetDataLine;
-    AudioInputStream audioInputStream;
-    SourceDataLine sourceDataLine;
+    private AudioFormat audioFormat;
+    private TargetDataLine targetDataLine;
+    private AudioInputStream audioInputStream;
+    private SourceDataLine sourceDataLine;
     byte [] tempBuffer = new byte[500];
 
     public Mic(int port, String IP) throws SocketException {

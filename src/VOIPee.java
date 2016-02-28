@@ -27,7 +27,7 @@ public class VOIPee{
 
     }
 
-    public void StartStates(String IP,DatagramSocket socket) throws SocketException{
+    public void StartStates(String IP,DatagramSocket socket){
 
         userState = new States("127.0.0.1",socket, PORT);
         threadStates = new Thread(userState);
@@ -56,7 +56,7 @@ public class VOIPee{
 
 
     }
-    public void end () throws SocketException {
+    public void end () {
 
         newcallmic.stopCapture=true;
         newcallSpeaker.stopPlay =true;
