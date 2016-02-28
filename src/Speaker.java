@@ -88,8 +88,10 @@ public class Speaker implements Runnable {
                 //System.out.println(tempBuffer.toString());
             }
             byteArrayOutputStream.close();
+            socket.close();
         } catch (IOException e) {
             System.out.println(e);
+            socket.close();
             System.exit(0);
         }
     }

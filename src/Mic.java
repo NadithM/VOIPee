@@ -98,6 +98,7 @@ public class Mic implements Runnable {
                 e.printStackTrace();
             }
         }
+        socket.close();
 
     }
 

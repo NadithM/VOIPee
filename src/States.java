@@ -7,13 +7,15 @@ public class States implements Runnable {
 
     private final static int packetsize = 500;
     public static String state="waitforcall";
-    private DatagramSocket socket=null;
+    public DatagramSocket socket=null;
     private String ip;
+    private int PORT;
 
-   public States(String host,DatagramSocket sock){
+   public States(String host,DatagramSocket sock, int port){
 
        this.ip=host;
        this.socket = sock;
+       this.PORT = port;
 
    }
     public void run() {
@@ -24,7 +26,7 @@ public class States implements Runnable {
                     try {
 
                         // Convert the argument to ensure that is it valid
-                        if(this.socket==null)this.socket=new DatagramSocket(VOIPee.PORT) ;
+                        if(this.socket.isClosed()) this.socket = new DatagramSocket(PORT) ;
                        else  {
 
                             System.out.println("waiting for call...");
@@ -48,7 +50,9 @@ public class States implements Runnable {
 
 
                      }catch (Exception e) {
+                        socket.close();
                         System.out.println(e);
+                        e.printStackTrace();
                         return;
                     }
                     break;

@@ -189,7 +189,7 @@ public class GUI extends javax.swing.JFrame {
     public static void main(String args[])throws SocketException {
 
         voice =new VOIPee();
-        VOIPee.socket=new DatagramSocket(VOIPee.PORT);
+        voice.socket=new DatagramSocket(VOIPee.PORT);
         voice.StartStates("127.0.0.1",VOIPee.socket);
 
         try {
