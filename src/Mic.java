@@ -16,7 +16,7 @@ public class Mic implements Runnable {
     private int PORT;
     DatagramSocket socket;
     String HOST;
-    private volatile boolean stopCapture = false;
+    public volatile boolean stopCapture = false;
 
     ByteArrayOutputStream byteArrayOutputStream;
     AudioFormat audioFormat;

@@ -9,6 +9,9 @@ public class VOIPee{
     public boolean oncall = false;
     public Thread threadSpeaker;
     public Thread threadMic;
+    public static Speaker newcallSpeaker;
+    public static Mic newcallmic;
+
     public Thread threadStates;
     public static DatagramSocket socket=null;
 
@@ -38,10 +41,10 @@ public class VOIPee{
            if (!oncall) {
                oncall = connectionSetup(IP);
                if (!oncall) {//mekath not krama on wenawa
-                   Speaker newcallSpeaker = new Speaker(new DatagramSocket(PORT));
+                   newcallSpeaker = new Speaker(new DatagramSocket(PORT));
                    threadSpeaker = new Thread(newcallSpeaker);
                    threadSpeaker.start();
-                   Mic newcallmic = new Mic(PORT, IP);
+                   newcallmic = new Mic(PORT, IP);
                    threadMic = new Thread(newcallmic);
                    threadMic.start();
 
@@ -54,7 +57,8 @@ public class VOIPee{
     }
     public void end () throws SocketException {
 
-      // VOIPee.socket=new DatagramSocket(VOIPee.PORT) ;
+        newcallmic.stopCapture=true;
+        newcallSpeaker.stopPlay =true;
 
 
     }

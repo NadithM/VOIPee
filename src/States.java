@@ -22,26 +22,31 @@ public class States implements Runnable {
             switch (state) {
                 case "waitforcall":
                     try {
+
                         // Convert the argument to ensure that is it valid
+                        if(this.socket==null)this.socket=new DatagramSocket(VOIPee.PORT) ;
+                       else  {
+
+                            System.out.println("waiting for call...");
+
+                            // Create a packet
+                            DatagramPacket packet = new DatagramPacket(new byte[packetsize], packetsize);
+                            byte[] req = "ok".getBytes();
+
+                            // Receive a packet (blocking)
+                            socket.receive(packet);
+
+                            // Print the packet
+                            System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
+
+                            packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
+                            // Return the packet to the sender
+                            socket.send(packet);
+                            socket.close();
+                            state = "oncall";
+                        }
 
 
-                        System.out.println("waiting for call...");
-
-                        // Create a packet
-                        DatagramPacket packet = new DatagramPacket(new byte[packetsize], packetsize);
-                        byte[] req = "ok".getBytes();
-
-                        // Receive a packet (blocking)
-                        socket.receive(packet);
-
-                        // Print the packet
-                        System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
-
-                        packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
-                        // Return the packet to the sender
-                        socket.send(packet);
-                        socket.close();
-                        state="oncall";
                      }catch (Exception e) {
                         System.out.println(e);
                         return;
