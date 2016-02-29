@@ -29,7 +29,7 @@ public class VOIPee{
 
     public void StartStates(String IP,DatagramSocket socket){
 
-        userState = new States("127.0.0.1",socket, PORT);
+        userState = new States("127.0.0.1",socket);
         threadStates = new Thread(userState);
         threadStates.start();
 
@@ -71,7 +71,7 @@ public class VOIPee{
             sock = new DatagramSocket();
             byte[] req= "Can I call?".getBytes();
             InetAddress host = InetAddress.getByName(IP) ;
-            DatagramPacket packet = new DatagramPacket(req, req.length, host, PORT);
+            DatagramPacket packet = new DatagramPacket(req, req.length, host, 30000);
             sock.send(packet);
 
             packet.setData( new byte[500] ) ;

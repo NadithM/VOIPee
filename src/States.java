@@ -9,13 +9,13 @@ public class States implements Runnable {
     public static String state="waitforcall";
     private DatagramSocket socket=null;
     private String ip;
-    private int PORT;
+    private int PORT = 30000;
 
-   public States(String host,DatagramSocket sock, int port){
+   public States(String host,DatagramSocket sock){
 
        this.ip=host;
        this.socket = sock;
-       this.PORT = port;
+
 
    }
     public void run() {

@@ -164,7 +164,9 @@ public class GUI extends javax.swing.JFrame {
 
       try{
 
-          voice.call("127.0.0.1");
+          String temp =jTextArea1.getText();
+          if(temp.isEmpty()) return;
+          voice.call(temp);
 
           jLabel1.setBackground(new java.awt.Color(0,153,0));
           jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
@@ -185,7 +187,6 @@ public class GUI extends javax.swing.JFrame {
     public static void main(String args[])throws SocketException {
 
         voice =new VOIPee();
-        VOIPee.socket =new DatagramSocket(VOIPee.PORT);
         voice.StartStates("127.0.0.1", VOIPee.socket);
 
         try {
