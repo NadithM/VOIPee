@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.Arrays;
 
 /**
  * Created by Rama on 2/27/2016.
@@ -14,12 +15,24 @@ public class Speaker implements Runnable {
     private DatagramSocket socket;
 
     public volatile boolean stopPlay = false;
+    private  static  boolean stopwhile=false;
     private ByteArrayOutputStream byteArrayOutputStream;
+    private static ByteArrayInputStream byteArrayInputStream;
+
     private AudioFormat audioFormat;
+    private static int playstart=0;
+    private static int playstop=2000;
+    private static boolean[] window=new boolean[4];
+    private static int [] got={0,1,2,3};// first index  does not read some how,So I put first index as -1 to pass that, then
+    // it will read other 4 numbers and give the which packets server wating for
+
     //TargetDataLine targetDataLine;
     //AudioInputStream audioInputStream;
     private SourceDataLine sourceDataLine;
-    byte tempBuffer[] = new byte[510];
+    byte tempBuffer1[] = new byte[510];
+    private static byte  tempBuffer[][] = new byte[4][500];
+
+    private static byte tempBufferfinal[] = new byte[2000];
 
     public Speaker(DatagramSocket sock){
         this.socket = sock;
@@ -82,19 +95,23 @@ public class Speaker implements Runnable {
 
             while (!stopPlay) {
                 socket.receive( packet ) ;
-                tempBuffer = packet.getData();
-                byteArrayOutputStream.write(tempBuffer, 0, packetsize);
+                tempBuffer1= packet.getData();// get the paket to byte buffer
+                byteArrayOutputStream.write(tempBuffer1, 0, packetsize);
 
-                byte b []=new byte[10];
-                for(int x= 0 ; x < b.length; x++) {
+                byte b []=new byte[10];//to take the sequence number
+
+                for(int x= 0 ; x < b.length; x++) {//extract the number
                     //printing the characters
-                    b[x]=tempBuffer[500+x];
+                    b[x]=tempBuffer1[500+x];
                     //System.out.println(" "+(int)b[x]);
                 }
 
-               System.out.println( " packet :  "+ bytesToInt(b));
+               System.out.println( " packet :  "+ bytesToInt(b));//bytesToInt(b) converts extracted number into int
 
-                sourceDataLine.write(tempBuffer, 0, 500);//playing audio available in tempBuffer
+                boolean play=useArraysBinarySearch(got, bytesToInt(b),tempBuffer1);//to check the packet squence
+                System.out.println(play);
+            //playstart ,and aplaystop for play the required part of the buffer.tempbufferfinal is final buffer to play
+           sourceDataLine.write(tempBufferfinal, playstart, playstop);//playing audio available in tempBuffer
                 //System.out.println(tempBuffer.toString());
             }
             byteArrayOutputStream.close();
@@ -129,7 +146,40 @@ public class Speaker implements Runnable {
         return my_int;
     }
 
+    public static boolean useArraysBinarySearch(int[] arr, int targetValue,byte [] tempbuff) {
+        int a =  Arrays.binarySearch(arr, targetValue);//a get the value of which index of the window came throgh the packet
+        window[a]=true;//
+        byteArrayInputStream= new ByteArrayInputStream(tempbuff) ;
+        int temp=byteArrayInputStream.read(tempBuffer[a],0,500);
+        //sourceDataLine.write(tempBufferfinal, playstart, playstop);//playing audio available in tempBuffer
+
+        System.out.println("a value: "+a);
+        if(window[1]==true && window[3]==true && window[2]==true) {//only waing to last 3 packets .if received then play
+
+           for(int f=0;f<got.length;f++) got[f]+=1;
+            copySmallArraysToBigArray(tempBuffer,tempBufferfinal);
+
+            return true;
+        }
+        else
+            return false;
+    }
+
+    public static void copySmallArraysToBigArray(final byte[][] smallArrays,
+                                                 final byte[] bigArray){
+        int currentOffset = 0;
+        int windowindex=0;
+        for(final byte[] currentArray : smallArrays){
 
 
+                System.arraycopy(
+                        currentArray, 0,
+                        bigArray, currentOffset,
+                        currentArray.length
+                );
+                currentOffset += currentArray.length;
+
+        }
+    }
 
 }
