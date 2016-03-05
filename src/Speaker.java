@@ -1,6 +1,8 @@
 import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
@@ -17,7 +19,7 @@ public class Speaker implements Runnable {
     //TargetDataLine targetDataLine;
     //AudioInputStream audioInputStream;
     private SourceDataLine sourceDataLine;
-    byte tempBuffer[] = new byte[500];
+    byte tempBuffer[] = new byte[510];
 
     public Speaker(DatagramSocket sock){
         this.socket = sock;
@@ -74,7 +76,7 @@ public class Speaker implements Runnable {
     private void captureAndPlay() {
         byteArrayOutputStream = new ByteArrayOutputStream();
         stopPlay = false;
-        int packetsize = 500;
+        int packetsize = 510;
         DatagramPacket packet = new DatagramPacket( new byte[packetsize], packetsize) ;
         try {
 
@@ -82,11 +84,22 @@ public class Speaker implements Runnable {
                 socket.receive( packet ) ;
                 tempBuffer = packet.getData();
                 byteArrayOutputStream.write(tempBuffer, 0, packetsize);
+
+                byte b []=new byte[10];
+                for(int x= 0 ; x < b.length; x++) {
+                    //printing the characters
+                    b[x]=tempBuffer[500+x];
+                    //System.out.println(" "+(int)b[x]);
+                }
+
+               System.out.println( " packet :  "+ bytesToInt(b));
+
                 sourceDataLine.write(tempBuffer, 0, 500);//playing audio available in tempBuffer
                 //System.out.println(tempBuffer.toString());
             }
             byteArrayOutputStream.close();
             socket.close();
+            sourceDataLine.close();
         } catch (IOException e) {
             System.out.println(e);
             socket.close();
@@ -108,6 +121,13 @@ public class Speaker implements Runnable {
         this.stopPlay = true;
     }
 
+    public int bytesToInt(byte[] int_bytes) throws IOException {
+        ByteArrayInputStream bis = new ByteArrayInputStream(int_bytes);
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        int my_int = ois.readInt();
+        ois.close();
+        return my_int;
+    }
 
 
 

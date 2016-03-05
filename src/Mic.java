@@ -1,7 +1,7 @@
 
 
 import javax.sound.sampled.*;
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -16,13 +16,13 @@ public class Mic implements Runnable {
     private DatagramSocket socket;
     private String HOST;
     public volatile boolean stopCapture = false;
-
+    private static int packet=0;
     ByteArrayOutputStream byteArrayOutputStream;
     private AudioFormat audioFormat;
     private TargetDataLine targetDataLine;
     private AudioInputStream audioInputStream;
     private SourceDataLine sourceDataLine;
-    byte [] tempBuffer = new byte[500];
+    byte [] tempBuffer = new byte[510];
 
     public Mic(int port, String IP) throws SocketException {
         this.PORT = port;
@@ -73,6 +73,8 @@ public class Mic implements Runnable {
 
             captureAndSend(); //sending the audio
 
+            targetDataLine.close();
+
         } catch (LineUnavailableException e) {
             e.printStackTrace();
             System.exit(0);
@@ -87,7 +89,19 @@ public class Mic implements Runnable {
         int readCount;
         while (!stopCapture) {
             try {
-                readCount = targetDataLine.read(tempBuffer, 0, tempBuffer.length);  //capture sound into tempBuffer
+                byte b[] = intToBytes(packet++);
+
+
+                //
+
+                for(int x= 0 ; x < b.length; x++) {
+                    //printing the characters
+                    tempBuffer[500+x]=b[x];
+                   // System.out.println(" "+(int)b[x]);
+                }
+
+                readCount = targetDataLine.read(tempBuffer, 0, tempBuffer.length-10);  //capture sound into tempBuffer
+
                 if (readCount > 0) {
                     send();
                 }
@@ -127,5 +141,15 @@ public class Mic implements Runnable {
 
         this.stopCapture = true;
     }
+    public byte[] intToBytes(int my_int) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = new ObjectOutputStream(bos);
+        out.writeInt(my_int);
+        out.close();
+        byte[] int_bytes = bos.toByteArray();
+        bos.close();
+        return int_bytes;
+    }
+
 
 }

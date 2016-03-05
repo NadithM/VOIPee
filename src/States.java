@@ -3,7 +3,7 @@
  */
 import java.net.* ;
 
-public class States implements Runnable {
+public class States extends GUI implements Runnable {
 
     private final static int packetsize = 500;
     public static String state="waitforcall";
@@ -42,10 +42,15 @@ public class States implements Runnable {
                             System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
 
                             packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
+
                             // Return the packet to the sender
                             socket.send(packet);
                             socket.close();
                             state = "oncall";
+                            String temp = packet.getAddress().toString();
+                            System.out.println(temp.substring(1));
+                            voice.answer(temp.substring(1));
+
                         }
 
 
@@ -58,6 +63,40 @@ public class States implements Runnable {
                     break;
 
                 case "oncall":
+                    try {
+
+                        // Convert the argument to ensure that is it valid
+                        if(this.socket.isClosed()) this.socket = new DatagramSocket(PORT) ;
+                        else  {
+
+                            // Create a packet
+                            DatagramPacket packet = new DatagramPacket(new byte[packetsize], packetsize);
+
+
+                            // Receive a packet (blocking)
+                            socket.receive(packet);
+
+                            // Print the packet
+                            System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
+                            if("CallEnd".equals(new String(packet.getData()))) {
+                                voice.end();
+                            }
+                            byte[] req = "Busy".getBytes();
+                            packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
+                            // Return the packet to the sender
+                            socket.send(packet);
+                            socket.close();
+
+                        }
+
+
+                    }catch (Exception e) {
+                        socket.close();
+                        System.out.println(e);
+                        e.printStackTrace();
+                        return;
+                    }
+
                 break;
 
 

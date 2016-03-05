@@ -1,4 +1,6 @@
 
+import javax.swing.*;
+import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
@@ -15,7 +17,7 @@ public class GUI extends javax.swing.JFrame {
 
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
+    public static javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -150,13 +152,19 @@ public class GUI extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
 
-        voice.end();
+        try {
+            voice.end(jTextArea1.getText());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         States.state="waitforcall";
 
         jLabel1.setBackground(new java.awt.Color(0,153,0));
         jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("CALL END");
+
+        jTextArea1.setEditable(true);
 
     }
 
@@ -168,6 +176,7 @@ public class GUI extends javax.swing.JFrame {
           if(temp.isEmpty()) return;
           voice.call(temp);
 
+          jTextArea1.setEditable(false);
           jLabel1.setBackground(new java.awt.Color(0,153,0));
           jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
           jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -186,8 +195,9 @@ public class GUI extends javax.swing.JFrame {
      */
     public static void main(String args[])throws SocketException {
 
-        voice =new VOIPee();
-        voice.StartStates("127.0.0.1", VOIPee.socket);
+        voice = new VOIPee();
+        DatagramSocket sock = new DatagramSocket(30000);
+        voice.StartStates("127.0.0.1", sock);
 
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.net.*;
 
 /**
@@ -35,7 +36,15 @@ public class VOIPee{
 
 
     }
+    public void answer (String IP) throws SocketException {
 
+        newcallSpeaker = new Speaker(new DatagramSocket(PORT));
+        threadSpeaker = new Thread(newcallSpeaker);
+        threadSpeaker.start();
+        newcallmic = new Mic(PORT, IP);
+        threadMic = new Thread(newcallmic);
+        threadMic.start();
+    }
     public void call (String IP) throws SocketException {
 
 
@@ -56,13 +65,28 @@ public class VOIPee{
 
 
     }
-    public void end () {
+
+
+    public void end (String IP) throws IOException {
+        DatagramSocket sock = null;
+            sock = new DatagramSocket();
+            byte[] req= "CallEnd".getBytes();
+            InetAddress host = InetAddress.getByName(IP) ;
+            DatagramPacket packet = new DatagramPacket(req, req.length, host, 30000);
+            sock.send(packet);
 
         newcallmic.stopCapture=true;
         newcallSpeaker.stopPlay =true;
+
         //
+    }
 
+    public void end (){
 
+        newcallmic.stopCapture=true;
+        newcallSpeaker.stopPlay =true;
+
+        //
     }
 
     private boolean connectionSetup(String IP)  {
@@ -77,10 +101,21 @@ public class VOIPee{
             packet.setData( new byte[500] ) ;
             // Wait for a response from the server
             sock.receive( packet ) ;
+            System.out.println(packet.getData());
             if("ok".equals(new String(packet.getData()))) {
+                States.state="oncall";
+                System.out.println(States.state);
+                GUI.jLabel1.setBackground(new java.awt.Color(0,153,0));
+                GUI.jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
+                GUI.jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                GUI.jLabel1.setText("On call");
                 sock.close();
                 return true;
-            }else{
+            }else if("Busy".equals(new String(packet.getData()))){
+                GUI.jLabel1.setBackground(new java.awt.Color(0,153,0));
+                GUI.jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
+                GUI.jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                GUI.jLabel1.setText("Busy");
                 sock.close();
                 return false;
             }
