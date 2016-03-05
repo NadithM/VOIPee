@@ -18,7 +18,7 @@ public class Speaker implements Runnable {
     private  static  boolean stopwhile=false;
     private ByteArrayOutputStream byteArrayOutputStream;
     private static ByteArrayInputStream byteArrayInputStream;
-
+    private static boolean playfinal=false;
     private AudioFormat audioFormat;
     private static int playstart=0;
     private static int playstop=2000;
@@ -106,13 +106,14 @@ public class Speaker implements Runnable {
                     //System.out.println(" "+(int)b[x]);
                 }
 
-               System.out.println( " packet :  "+ bytesToInt(b));//bytesToInt(b) converts extracted number into int
+               System.out.println( bytesToInt(b)+ " packet received :  ");//bytesToInt(b) converts extracted number into int
 
-                boolean play=useArraysBinarySearch(got, bytesToInt(b),tempBuffer1);//to check the packet squence
-                System.out.println(play);
+                boolean play=useArraysBinarySearch( bytesToInt(b),tempBuffer1);//to check the packet squence
+              //  System.out.println(play);
             //playstart ,and aplaystop for play the required part of the buffer.tempbufferfinal is final buffer to play
-           sourceDataLine.write(tempBufferfinal, playstart, playstop);//playing audio available in tempBuffer
-                //System.out.println(tempBuffer.toString());
+           if(playfinal) sourceDataLine.write(tempBufferfinal, playstart, tempBufferfinal.length);//playing audio available in tempBuffer
+
+                playfinal=false;
             }
             byteArrayOutputStream.close();
             socket.close();
@@ -146,18 +147,28 @@ public class Speaker implements Runnable {
         return my_int;
     }
 
-    public static boolean useArraysBinarySearch(int[] arr, int targetValue,byte [] tempbuff) {
-        int a =  Arrays.binarySearch(arr, targetValue);//a get the value of which index of the window came throgh the packet
-        window[a]=true;//
+    public static boolean useArraysBinarySearch(int targetValue,byte [] tempbuff) {
+        int a =  Arrays.binarySearch(got, targetValue);
+        System.out.println(  " packet accepted or not :  "+ got[0] +got[1] +got[2] +got[3] +"  " + targetValue +" place "+ a);//bytesToInt(b) converts extracted number into int
+
+        //a get the value of which index of the window came throgh the packet
+        window[a]=true;
         byteArrayInputStream= new ByteArrayInputStream(tempbuff) ;
         int temp=byteArrayInputStream.read(tempBuffer[a],0,500);
+        System.out.println("How many byte copyied to tempbuffer[a] :"+temp);//bytesToInt(b) converts extracted number into int
+
+        System.out.println(tempBuffer[a].toString());
         //sourceDataLine.write(tempBufferfinal, playstart, playstop);//playing audio available in tempBuffer
+        if(window[3]==true && window[2]==true && window[1]==true) {//only waing to last 3 packets .if received then play
 
-        System.out.println("a value: "+a);
-        if(window[1]==true && window[3]==true && window[2]==true) {//only waing to last 3 packets .if received then play
+           for(int f=0;f<got.length ;f++) got[f]+=4;
 
-           for(int f=0;f<got.length;f++) got[f]+=1;
-            copySmallArraysToBigArray(tempBuffer,tempBufferfinal);
+            copySmallArraysToBigArray();
+           System.out.println("final buffer to play "+tempBufferfinal.toString());
+            playfinal=true;
+            window[0]=false ;
+            window[1]=false ; window[2]=false ; window[3]=false ;
+
 
             return true;
         }
@@ -165,16 +176,15 @@ public class Speaker implements Runnable {
             return false;
     }
 
-    public static void copySmallArraysToBigArray(final byte[][] smallArrays,
-                                                 final byte[] bigArray){
+    public static void copySmallArraysToBigArray(){
         int currentOffset = 0;
-        int windowindex=0;
-        for(final byte[] currentArray : smallArrays){
+
+        for(final byte[] currentArray : tempBuffer){
 
 
                 System.arraycopy(
                         currentArray, 0,
-                        bigArray, currentOffset,
+                        tempBufferfinal, currentOffset,
                         currentArray.length
                 );
                 currentOffset += currentArray.length;
