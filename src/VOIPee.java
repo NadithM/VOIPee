@@ -76,6 +76,9 @@ public class VOIPee{
 
         newcallmic.stopCapture=true;
         newcallSpeaker.stopPlay =true;
+        oncall=false;
+        //newcallmic.setempty();
+        //newcallSpeaker.setempty();
         System.out.println("cut");
         //
     }
@@ -85,7 +88,9 @@ public class VOIPee{
         System.out.println("cut");
         newcallmic.stopCapture=true;
         newcallSpeaker.stopPlay =true;
-
+        oncall=false;
+        //newcallmic.setempty();
+       //newcallSpeaker.setempty();
         //
     }
 

@@ -135,6 +135,10 @@ public class Mic implements Runnable {
         this.stopCapture = true;
     }
 
+    public void setempty(){
+        packet=0;
+
+    }
     /*
     public byte[] intToBytes(int my_int) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
