@@ -78,6 +78,46 @@ public class States extends GUI implements Runnable {
 
                             // Print the packet
                             System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
+                            String callEnd = new String("CallEnd");
+                            String packdata = new String(packet.getData());
+                            System.out.print(callEnd + " " + packdata);
+                            System.out.println(callEnd.equals(packdata));
+                            if(packdata.contains(callEnd)) {
+                                System.out.println("  .... ");
+                                state = "waitforcall";
+                                voice.end();
+                            }
+                            byte[] req = "Busy".getBytes();
+                            packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
+                            // Return the packet to the sender
+                            socket.send(packet);
+                            socket.close();
+
+                        }
+
+
+                    }catch (Exception e) {
+                        socket.close();
+                        System.out.println(e);
+                        e.printStackTrace();
+                        return;
+                    }
+
+                    try {
+
+                        // Convert the argument to ensure that is it valid
+                        if(this.socket.isClosed()) this.socket = new DatagramSocket(PORT) ;
+                        else  {
+
+                            // Create a packet
+                            DatagramPacket packet = new DatagramPacket(new byte[packetsize], packetsize);
+
+
+                            // Receive a packet (blocking)
+                            socket.receive(packet);
+
+                            // Print the packet
+                            System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
                             if("CallEnd".equals(new String(packet.getData()))) {
                                 voice.end();
                             }

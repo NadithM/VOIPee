@@ -16,13 +16,13 @@ public class Mic implements Runnable {
     private DatagramSocket socket;
     private String HOST;
     public volatile boolean stopCapture = false;
-    private static int packet=0;
+    private static byte packet=0;
     ByteArrayOutputStream byteArrayOutputStream;
     private AudioFormat audioFormat;
     private TargetDataLine targetDataLine;
     private AudioInputStream audioInputStream;
     private SourceDataLine sourceDataLine;
-    byte [] tempBuffer = new byte[510];
+    byte [] tempBuffer = new byte[501];
 
     public Mic(int port, String IP) throws SocketException {
         this.PORT = port;
@@ -89,18 +89,11 @@ public class Mic implements Runnable {
         int readCount;
         while (!stopCapture) {
             try {
-                byte b[] = intToBytes(packet++);
+                byte b = packet;
+                packet++;
+                tempBuffer[500] = b;
 
-
-                //
-
-                for(int x= 0 ; x < b.length; x++) {
-                    //printing the characters
-                    tempBuffer[500+x]=b[x];
-                   // System.out.println(" "+(int)b[x]);
-                }
-
-                readCount = targetDataLine.read(tempBuffer, 0, tempBuffer.length-10);  //capture sound into tempBuffer
+                readCount = targetDataLine.read(tempBuffer, 0, tempBuffer.length-1);  //capture sound into tempBuffer
 
                 if (readCount > 0) {
                     send();
@@ -120,7 +113,7 @@ public class Mic implements Runnable {
             InetAddress host = InetAddress.getByName(HOST);
             DatagramPacket packet = new DatagramPacket(tempBuffer, tempBuffer.length, host, PORT);
             socket.send(packet);
-            //System.out.println(packet);
+            System.out.println( "sent packet: " + packet);
         }
         catch( Exception e ) {
                 System.out.println(e) ;
@@ -141,6 +134,8 @@ public class Mic implements Runnable {
 
         this.stopCapture = true;
     }
+
+    /*
     public byte[] intToBytes(int my_int) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out = new ObjectOutputStream(bos);
@@ -150,6 +145,6 @@ public class Mic implements Runnable {
         bos.close();
         return int_bytes;
     }
-
+*/
 
 }

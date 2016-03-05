@@ -23,13 +23,14 @@ public class Speaker implements Runnable {
     private static int playstart=0;
     private static int playstop=2000;
     private static boolean[] window=new boolean[4];
-    private static int [] got={0,1,2,3};// first index  does not read some how,So I put first index as -1 to pass that, then
+    private static byte [] got={0,1,2,3};// first index  does not read some how,So I put first index as -1 to pass that, then
     // it will read other 4 numbers and give the which packets server wating for
+    private static long timer;
 
     //TargetDataLine targetDataLine;
     //AudioInputStream audioInputStream;
     private SourceDataLine sourceDataLine;
-    byte tempBuffer1[] = new byte[510];
+    byte tempBuffer1[] = new byte[501];
     private static byte  tempBuffer[][] = new byte[4][500];
 
     private static byte tempBufferfinal[] = new byte[2000];
@@ -89,7 +90,7 @@ public class Speaker implements Runnable {
     private void captureAndPlay() {
         byteArrayOutputStream = new ByteArrayOutputStream();
         stopPlay = false;
-        int packetsize = 510;
+        int packetsize = 501;
         DatagramPacket packet = new DatagramPacket( new byte[packetsize], packetsize) ;
         try {
 
@@ -98,17 +99,12 @@ public class Speaker implements Runnable {
                 tempBuffer1= packet.getData();// get the paket to byte buffer
                 byteArrayOutputStream.write(tempBuffer1, 0, packetsize);
 
-                byte b []=new byte[10];//to take the sequence number
+                byte b = tempBuffer1[500];
 
-                for(int x= 0 ; x < b.length; x++) {//extract the number
-                    //printing the characters
-                    b[x]=tempBuffer1[500+x];
-                    //System.out.println(" "+(int)b[x]);
-                }
 
-               System.out.println( bytesToInt(b)+ " packet received :  ");//bytesToInt(b) converts extracted number into int
+               System.out.println( b + " packet received :  ");
 
-                boolean play=useArraysBinarySearch( bytesToInt(b),tempBuffer1);//to check the packet squence
+                boolean play = useArraysBinarySearch(b ,tempBuffer1);//to check the packet squence
               //  System.out.println(play);
             //playstart ,and aplaystop for play the required part of the buffer.tempbufferfinal is final buffer to play
            if(playfinal) sourceDataLine.write(tempBufferfinal, playstart, tempBufferfinal.length);//playing audio available in tempBuffer
@@ -129,6 +125,7 @@ public class Speaker implements Runnable {
     public void run(){
 
             speakerStart();
+            timer = System.currentTimeMillis();
             captureAndPlay();
 
 
@@ -147,27 +144,34 @@ public class Speaker implements Runnable {
         return my_int;
     }
 
-    public static boolean useArraysBinarySearch(int targetValue,byte [] tempbuff) {
+    public static boolean useArraysBinarySearch(byte targetValue,byte [] tempbuff) {
         int a =  Arrays.binarySearch(got, targetValue);
-        System.out.println(  " packet accepted or not :  "+ got[0] +got[1] +got[2] +got[3] +"  " + targetValue +" place "+ a);//bytesToInt(b) converts extracted number into int
+        System.out.println(  " packet accepted or not :  "+ got[0] +got[1] +got[2] +got[3] +"  " + targetValue +" place "+ a);//using a byte
 
         //a get the value of which index of the window came throgh the packet
         window[a]=true;
         byteArrayInputStream= new ByteArrayInputStream(tempbuff) ;
-        int temp=byteArrayInputStream.read(tempBuffer[a],0,500);
-        System.out.println("How many byte copyied to tempbuffer[a] :"+temp);//bytesToInt(b) converts extracted number into int
+        //int temp=byteArrayInputStream.read(tempBuffer[a],0,500);
+        //System.out.println("How many byte copyied to tempbuffer[a] :"+temp);//bytesToInt(b) converts extracted number into int
 
         System.out.println(tempBuffer[a].toString());
         //sourceDataLine.write(tempBufferfinal, playstart, playstop);//playing audio available in tempBuffer
-        if(window[3]==true && window[2]==true && window[1]==true) {//only waing to last 3 packets .if received then play
+        int trues =0;
+        for(int t=0; t<window.length; t++){
+            if(window[t]==true) trues++;
+        }
+        long curTime = System.currentTimeMillis();
+        if(trues==4 || (curTime-timer)>200) {//waing for all 4 packets .if not after 200ms playing.
 
-           for(int f=0;f<got.length ;f++) got[f]+=4;
+           for(int f=0; f<got.length; f++) got[f]+=4;
 
             copySmallArraysToBigArray();
-           System.out.println("final buffer to play "+tempBufferfinal.toString());
+            System.out.println("final buffer to play "+tempBufferfinal.toString());
             playfinal=true;
-            window[0]=false ;
-            window[1]=false ; window[2]=false ; window[3]=false ;
+            for(int t=0; t<window.length; t++){
+                window[t]=false;
+            }
+            timer = System.currentTimeMillis();// resetting the timer after plays.
 
 
             return true;

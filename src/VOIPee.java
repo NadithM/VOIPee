@@ -50,7 +50,7 @@ public class VOIPee{
 
            if (!oncall) {
                oncall = connectionSetup(IP);
-               if (!oncall) {//mekath not krama on wenawa
+               if (oncall) {//mekath not krama on wenawa
                    newcallSpeaker = new Speaker(new DatagramSocket(PORT));
                    threadSpeaker = new Thread(newcallSpeaker);
                    threadSpeaker.start();
@@ -66,7 +66,6 @@ public class VOIPee{
 
     }
 
-
     public void end (String IP) throws IOException {
         DatagramSocket sock = null;
             sock = new DatagramSocket();
@@ -77,12 +76,13 @@ public class VOIPee{
 
         newcallmic.stopCapture=true;
         newcallSpeaker.stopPlay =true;
-
+        System.out.println("cut");
         //
     }
 
-    public void end (){
 
+    public void end (){
+        System.out.println("cut");
         newcallmic.stopCapture=true;
         newcallSpeaker.stopPlay =true;
 
@@ -102,7 +102,8 @@ public class VOIPee{
             // Wait for a response from the server
             sock.receive( packet ) ;
             System.out.println(packet.getData());
-            if("ok".equals(new String(packet.getData()))) {
+            String pack = new String(packet.getData());
+            if(pack.contains("ok")) {
                 States.state="oncall";
                 System.out.println(States.state);
                 GUI.jLabel1.setBackground(new java.awt.Color(0,153,0));
