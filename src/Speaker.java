@@ -39,6 +39,13 @@ public class Speaker implements Runnable {
         this.socket = sock;
         this.stopPlay=false;
     }
+    public void setempty(){
+        got[0]=0;
+        got[1]=1;
+        got[2]=2;
+        got[3]=3;
+
+    }
 
     private AudioFormat getAudioFormat() {
         float sampleRate = 16000.0F;
@@ -151,7 +158,7 @@ public class Speaker implements Runnable {
         //a get the value of which index of the window came throgh the packet
         window[a]=true;
         byteArrayInputStream= new ByteArrayInputStream(tempbuff) ;
-        //int temp=byteArrayInputStream.read(tempBuffer[a],0,500);
+        int temp=byteArrayInputStream.read(tempBuffer[a],0,500);
         //System.out.println("How many byte copyied to tempbuffer[a] :"+temp);//bytesToInt(b) converts extracted number into int
 
         System.out.println(tempBuffer[a].toString());
