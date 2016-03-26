@@ -9,7 +9,13 @@ public class States extends GUI implements Runnable {
     public static String state="waitforcall";
     private DatagramSocket socket=null;
     private String ip;
-    private int PORT = 30000;
+
+
+    public static boolean oncall=false;
+    public static boolean ringing=false;
+    public static boolean waitforcall=true;
+    public static Sound ringtone;
+
 
    public States(String host,DatagramSocket sock){
 
@@ -26,30 +32,39 @@ public class States extends GUI implements Runnable {
                     try {
 
                         // Convert the argument to ensure that is it valid
-                        if(this.socket.isClosed()) this.socket = new DatagramSocket(PORT) ;
-                       else  {
-
-                            System.out.println("waiting for call...");
-
-                            // Create a packet
+                        if(this.socket.isClosed()) this.socket = new DatagramSocket(GUI.CTRLPORT) ;
+                       else {
+                             // Create a packet
                             DatagramPacket packet = new DatagramPacket(new byte[packetsize], packetsize);
                             byte[] req = "ok".getBytes();
 
                             // Receive a packet (blocking)
                             socket.receive(packet);
+                            System.out.println("got the request ....."+new String(packet.getData()));
 
-                            // Print the packet
-                            System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
-
-                            packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
 
                             // Return the packet to the sender
-                            socket.send(packet);
-                            socket.close();
-                            state = "oncall";
-                            String temp = packet.getAddress().toString();
-                            System.out.println(temp.substring(1));
-                            voice.answer(temp.substring(1));
+
+
+                            if(new String(packet.getData()).contains("Can I call?")){
+
+                                States.waitforcall=false;
+                                States.ringing=true;
+
+                                jLabel1.setBackground(new java.awt.Color(0,153,0));
+                                jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
+                                jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                                jLabel1.setText("CALL FROM "+packet.getAddress().toString().substring(1));
+                                state="ringing";
+                                jButton1.setText("ANSWER");
+                                GUI.packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
+
+                                ringtone=new Sound("C:\\Users\\Nadith\\IdeaProjects\\Copy\\src\\viber.wav");
+                               ringtone.loop();
+
+
+                            }
+
 
                         }
 
@@ -62,11 +77,15 @@ public class States extends GUI implements Runnable {
                     }
                     break;
 
+                case "ringing":
+                    //ipSystem.out.println("in ring");
+                    break;
+
                 case "oncall":
                     try {
 
                         // Convert the argument to ensure that is it valid
-                        if(this.socket.isClosed()) this.socket = new DatagramSocket(PORT) ;
+                        if(this.socket.isClosed()) this.socket = new DatagramSocket(GUI.CTRLPORT) ;
                         else  {
 
                             // Create a packet
@@ -79,18 +98,26 @@ public class States extends GUI implements Runnable {
                             // Print the packet
                             System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
                             String callEnd = new String("CallEnd");
-                            String packdata = new String(packet.getData());
-                            System.out.print(callEnd + " " + packdata);
-                            System.out.println(callEnd.equals(packdata));
+                           String packdata = new String(packet.getData());
+                           // System.out.print(callEnd + " " + packdata);
+                           // System.out.println(callEnd.equals(packdata));
                             if(packdata.contains(callEnd)) {
-                                System.out.println("  .... ");
+                               // System.out.println("  .... ");
                                 state = "waitforcall";
+                                jButton1.setText("CALL");
                                 voice.end();
                             }
-                            byte[] req = "Busy".getBytes();
-                            packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
-                            // Return the packet to the sender
-                            socket.send(packet);
+
+                            else {
+                                byte[] req = "Busy".getBytes();
+
+
+                                packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
+                                System.out.println("waiting for call...");
+                                // Return the packet to the sender
+                                socket.send(packet);
+
+                            }
                             socket.close();
 
                         }
@@ -103,39 +130,11 @@ public class States extends GUI implements Runnable {
                         return;
                     }
 
-                    try {
 
-                        // Convert the argument to ensure that is it valid
-                        if(this.socket.isClosed()) this.socket = new DatagramSocket(PORT) ;
-                        else  {
-
-                            // Create a packet
-                            DatagramPacket packet = new DatagramPacket(new byte[packetsize], packetsize);
+                    States.waitforcall=true;
+                    States.oncall=false;
 
 
-                            // Receive a packet (blocking)
-                            socket.receive(packet);
-
-                            // Print the packet
-                            System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
-                            if("CallEnd".equals(new String(packet.getData()))) {
-                                voice.end();
-                            }
-                            byte[] req = "Busy".getBytes();
-                            packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
-                            // Return the packet to the sender
-                            socket.send(packet);
-                            socket.close();
-
-                        }
-
-
-                    }catch (Exception e) {
-                        socket.close();
-                        System.out.println(e);
-                        e.printStackTrace();
-                        return;
-                    }
 
                 break;
 

@@ -109,7 +109,7 @@ public class Speaker implements Runnable {
                 byte b = tempBuffer1[500];
 
 
-               System.out.println( b + " packet received :  ");
+              // System.out.println( b + " packet received :  ");
 
                 boolean play = useArraysBinarySearch(b ,tempBuffer1);//to check the packet squence
               //  System.out.println(play);
@@ -153,15 +153,16 @@ public class Speaker implements Runnable {
 
     public static boolean useArraysBinarySearch(byte targetValue,byte [] tempbuff) {
         int a =  Arrays.binarySearch(got, targetValue);
-        System.out.println(  " packet accepted or not :  "+ got[0] +got[1] +got[2] +got[3] +"  " + targetValue +" place "+ a);//using a byte
+       // System.out.println(  " packet accepted or not :  "+ got[0] +got[1] +got[2] +got[3] +"  " + targetValue +" place "+ a);//using a byte
 
         //a get the value of which index of the window came throgh the packet
-        window[a]=true;
+        if(a>=0 && a<4 ) window[a]=true;
+        else return false;
         byteArrayInputStream= new ByteArrayInputStream(tempbuff) ;
         int temp=byteArrayInputStream.read(tempBuffer[a],0,500);
         //System.out.println("How many byte copyied to tempbuffer[a] :"+temp);//bytesToInt(b) converts extracted number into int
 
-        System.out.println(tempBuffer[a].toString());
+        //System.out.println(tempBuffer[a].toString());
         //sourceDataLine.write(tempBufferfinal, playstart, playstop);//playing audio available in tempBuffer
         int trues =0;
         for(int t=0; t<window.length; t++){
@@ -173,7 +174,7 @@ public class Speaker implements Runnable {
            for(int f=0; f<got.length; f++) got[f]+=4;
 
             copySmallArraysToBigArray();
-            System.out.println("final buffer to play "+tempBufferfinal.toString());
+          //  System.out.println("final buffer to play "+tempBufferfinal.toString());
             playfinal=true;
             for(int t=0; t<window.length; t++){
                 window[t]=false;

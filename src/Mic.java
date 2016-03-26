@@ -113,7 +113,7 @@ public class Mic implements Runnable {
             InetAddress host = InetAddress.getByName(HOST);
             DatagramPacket packet = new DatagramPacket(tempBuffer, tempBuffer.length, host, PORT);
             socket.send(packet);
-            System.out.println( "sent packet: " + packet);
+           // System.out.println( "sent packet: " + packet);
         }
         catch( Exception e ) {
                 System.out.println(e) ;
