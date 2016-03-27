@@ -12,28 +12,28 @@ import java.util.Arrays;
  */
 public class Speaker implements Runnable {
 
-    private DatagramSocket socket;
+    private DatagramSocket socket = null;
 
     public volatile boolean stopPlay = false;
-    private  static  boolean stopwhile=false;
-    private ByteArrayOutputStream byteArrayOutputStream;
-    private static ByteArrayInputStream byteArrayInputStream;
-    private static boolean playfinal=false;
-    private AudioFormat audioFormat;
-    private static int playstart=0;
-    private static int playstop=2000;
-    private static boolean[] window=new boolean[4];
-    private static byte [] got={0,1,2,3};// first index  does not read some how,So I put first index as -1 to pass that, then
+    public  static  boolean stopwhile=false;
+    public ByteArrayOutputStream byteArrayOutputStream;
+    public static ByteArrayInputStream byteArrayInputStream;
+    public static boolean playfinal=false;
+    public AudioFormat audioFormat;
+    public static int playstart=0;
+    public static int playstop=2000;
+    public static boolean[] window=new boolean[4];
+    public static byte [] got={0,1,2,3};// first index  does not read some how,So I put first index as -1 to pass that, then
     // it will read other 4 numbers and give the which packets server wating for
-    private static long timer;
+    public static long timer;
 
     //TargetDataLine targetDataLine;
     //AudioInputStream audioInputStream;
-    private SourceDataLine sourceDataLine;
+    public SourceDataLine sourceDataLine;
     byte tempBuffer1[] = new byte[501];
-    private static byte  tempBuffer[][] = new byte[4][500];
+    public static byte  tempBuffer[][] = new byte[4][500];
 
-    private static byte tempBufferfinal[] = new byte[2000];
+    public static byte tempBufferfinal[] = new byte[2000];
 
     public Speaker(DatagramSocket sock){
         this.socket = sock;
@@ -94,7 +94,7 @@ public class Speaker implements Runnable {
 
     }
 
-    private void captureAndPlay() {
+    public void captureAndPlay() {
         byteArrayOutputStream = new ByteArrayOutputStream();
         stopPlay = false;
         int packetsize = 501;

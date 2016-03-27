@@ -9,11 +9,14 @@ public class States implements Runnable {
     public static String state="waitforcall";
     public static DatagramSocket socket=null;
     private String ip;
+    String multiIP = "225.4.5.6";
+    public static String [] IPs;
 
 
     public static boolean oncall=false;
     public static boolean ringing=false;
     public static boolean waitforcall=true;
+    public static boolean isgroupcall=false;
     public static Sound ringtone;
 
 
@@ -68,6 +71,27 @@ public class States implements Runnable {
 
 
 
+                            }else if(new String(packet.getData()).contains("let's group call?")){
+
+                                String IP = new String(packet.getData());
+                                String [] IPs = IP.split(",");
+
+
+                                States.waitforcall=false;
+                                States.ringing=true;
+
+                                GUI.jLabel1.setBackground(new java.awt.Color(0,153,0));
+                                GUI.jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
+                                GUI.jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                                GUI.jLabel1.setText("Group call");
+                                changeState("ringing");
+                                GUI.jButton1.setText("ANSWER");
+                                GUI.jTextField1.setText(IP.substring(17));
+                                isgroupcall = true;
+                                GUI.packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
+
+                                ringtone=new Sound("E:\\Users\\Rama\\VOIPee\\src\\viber.wav");
+                                ringtone.loop();
                             }
 
 

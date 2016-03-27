@@ -14,6 +14,7 @@ public class Sound {
         // specify the sound to play
         // (assuming the sound can be played by the audio system)
         // from a wave File
+        fileName = System.getProperty("user.dir")+"\\src\\viber.wav";
         try {
             File file = new File(fileName);
             if (file.exists()) {

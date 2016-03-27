@@ -18,7 +18,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButton3;
-    private javax.swing.JTextField jTextField1;
+    public static javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JButton jButton3;
     private static DatagramSocket sock=null;
@@ -276,6 +276,14 @@ public class GUI extends javax.swing.JFrame {
         // call button
         try{
 
+            if(States.isgroupcall){
+ //            //   voice.gjTextField1.getText();
+
+
+
+
+            }
+
             if(States.waitforcall) {
                 String temp = jTextField2.getText();
 
@@ -293,34 +301,84 @@ public class GUI extends javax.swing.JFrame {
             }
             else if(States.ringing){
                 States.ringtone.stop();
-                try {
-    //                if(sock.isClosed()) sock = new DatagramSocket(CTRLPORT);
-                    States.socket.send(packet);
-                    byte[] req = "change state".getBytes();
-                    DatagramPacket pack = new DatagramPacket(req, req.length, packet.getAddress(), 30000);
-                    States.socket.send(pack);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if(States.isgroupcall){
+                    try {
+                        byte[] req = "change state".getBytes();
+                        DatagramPacket pack = new DatagramPacket(req, req.length, packet.getAddress(), 30000);
+                        States.socket.send(pack);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    voice.answer (packet.getAddress().toString().substring(1));
+                    jTextField2.setText(packet.getAddress().toString().substring(1));
+                    jTextField2.setEditable(false);
+
+
+                    jLabel1.setBackground(new java.awt.Color(0,153,0));
+                    jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
+                    jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                    jLabel1.setText("ONCALL");
+                    States.ringing=false;
+                    States.oncall=true;
+                    States.changeState("oncall");
+
+                    jButton1.setText("END CALL");
+
+                } else {
+                    try {
+                        //                if(sock.isClosed()) sock = new DatagramSocket(CTRLPORT);
+                        States.socket.send(packet);
+                        byte[] req = "change state".getBytes();
+                        DatagramPacket pack = new DatagramPacket(req, req.length, packet.getAddress(), 30000);
+                        States.socket.send(pack);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    voice.answer(packet.getAddress().toString().substring(1));
+                    jTextField2.setText(packet.getAddress().toString().substring(1));
+                    jTextField2.setEditable(false);
+
+
+                    jLabel1.setBackground(new java.awt.Color(0, 153, 0));
+                    jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
+                    jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                    jLabel1.setText("ONCALL");
+                    States.ringing = false;
+                    States.oncall = true;
+                    States.changeState("oncall");
+
+                    jButton1.setText("END CALL");
                 }
-
-                voice.answer (packet.getAddress().toString().substring(1));
-                jTextField2.setText(packet.getAddress().toString().substring(1));
-                jTextField2.setEditable(false);
-
-
-                jLabel1.setBackground(new java.awt.Color(0,153,0));
-                jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
-                jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-                jLabel1.setText("ONCALL");
-                States.ringing=false;
-                States.oncall=true;
-                States.changeState("oncall");
-
-                jButton1.setText("END CALL");
-
             }
             else if(States.oncall){
+                if(States.isgroupcall){
+                    try {
+                        voice.end(jTextField2.getText());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
+                    jLabel1.setBackground(new java.awt.Color(0,153,0));
+                    jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
+                    jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                    jLabel1.setText("CALL END");
+
+                    jTextField2.setEditable(true);
+
+                    States.oncall=false;
+                    States.waitforcall=true;
+                    States.changeState("waitforcall");
+                    System.out.println(States.state);
+                    Thread.sleep(1000);
+
+                    jLabel1.setText("ONLINE");
+
+
+                    jButton1.setText("CALL");
+                    jTextField2.setEditable(true);
+                }
                 try {
                     voice.end(jTextField2.getText());
                 } catch (IOException e) {
@@ -367,8 +425,13 @@ public class GUI extends javax.swing.JFrame {
 
     private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         // grup call
-        voice.isgroupcall = !voice.isgroupcall;
-        System.out.println(" "+voice.isgroupcall);
+        if(jRadioButton1.isSelected()){
+            States.isgroupcall = true;
+
+        }else{
+            States.isgroupcall = false;
+
+        }
 
 
     }

@@ -17,8 +17,7 @@ public class VOIPee{
     public Thread threadStates;
     public static DatagramSocket socket=null;
     public static  String grpID;
-    public static boolean isgroupcall=false;
-    public static boolean islisten=false;
+       public static boolean islisten=false;
     public static boolean isspeak=true;
 
 
@@ -46,6 +45,23 @@ public class VOIPee{
             threadMic.start();
 
     }
+
+    public void answergroup (String IP) throws SocketException {
+
+        try {
+            newcallSpeaker = new multiSpeaker(new MulticastSocket(20000));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        threadSpeaker = new Thread(newcallSpeaker);
+        threadSpeaker.start();
+
+        System.out.println(States.IPs[States.IPs.length-2]);
+        newcallmic = new Mic(PORT, States.IPs[States.IPs.length-2]);
+        threadMic = new Thread(newcallmic);
+        threadMic.start();
+
+    }
     public void call (String IP) throws SocketException {
 
 
@@ -64,6 +80,31 @@ public class VOIPee{
 
                 }
             }
+
+    }
+
+    public void groupcall (String IP) throws SocketException {
+
+
+        if(!oncall) {
+            oncall=groupconnectSetup(IP);
+
+            if (oncall) {
+                try {
+                    newcallSpeaker = new multiSpeaker(new MulticastSocket(PORT));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                threadSpeaker = new Thread(newcallSpeaker);
+                threadSpeaker.start();
+                newcallmic = new Mic(PORT, IP);
+                threadMic = new Thread(newcallmic);
+                threadMic.start();
+                States.state = "oncall";
+                States.oncall = true;
+
+            }
+        }
 
     }
 
@@ -132,7 +173,6 @@ public class VOIPee{
                 return false;
             }
 
-
         } catch (Exception e) {
             sock.close();
             e.printStackTrace();
@@ -140,7 +180,27 @@ public class VOIPee{
         return false;
     }
 
+    private boolean groupconnectSetup(String IPs)  {
+        DatagramSocket sock = null;
+        try {
+            String [] IP = IPs.split(",");
+            sock = new DatagramSocket();
+            byte[] req= ("let's group call?," + IPs + ",225.10.10.10,").getBytes();
+            for(int i = 0; i<IP.length; i++) {
+                InetAddress host = InetAddress.getByName(IP[i]);
+                DatagramPacket packet = new DatagramPacket(req, req.length, host, GUI.CTRLPORT);
+                sock.send(packet);
+                System.out.println("sent the request to call ." + new String(packet.getData()));
+            }
+                return true;
 
+
+        } catch (Exception e) {
+            sock.close();
+            e.printStackTrace();
+        }
+        return false;
+    }
 
 
 }
