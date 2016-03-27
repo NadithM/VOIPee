@@ -310,7 +310,8 @@ public class GUI extends javax.swing.JFrame {
                 jLabel1.setText("ONCALL");
                 States.ringing=false;
                 States.oncall=true;
-                States.state="oncall";
+                States.changeState("oncall");
+
                 jButton1.setText("END CALL");
 
             }
@@ -331,7 +332,8 @@ public class GUI extends javax.swing.JFrame {
 
                 States.oncall=false;
                 States.waitforcall=true;
-                States.state="waitforcall";
+                States.changeState("waitforcall");
+
                 Thread.sleep(1000);
 
                 jLabel1.setText("ONLINE");

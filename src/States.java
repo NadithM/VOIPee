@@ -25,10 +25,9 @@ public class States extends GUI implements Runnable {
 
    }
 
-    public static void changeState(String state){
+    public static void changeState(String stat){
 
-
-
+        state=stat;
     }
     public void run() {
 
@@ -61,7 +60,7 @@ public class States extends GUI implements Runnable {
                                 jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
                                 jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
                                 jLabel1.setText("CALL FROM "+packet.getAddress().toString().substring(1));
-                                state="ringing";
+                                changeState("ringing");
                                 jButton1.setText("ANSWER");
                                 GUI.packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
 
@@ -109,7 +108,8 @@ public class States extends GUI implements Runnable {
                            // System.out.println(callEnd.equals(packdata));
                             if(packdata.contains(callEnd)) {
                                // System.out.println("  .... ");
-                                state = "waitforcall";
+                                changeState("waitforcall");
+
                                 jButton1.setText("CALL");
                                 voice.end();
                             }
