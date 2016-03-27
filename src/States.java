@@ -24,6 +24,12 @@ public class States extends GUI implements Runnable {
 
 
    }
+
+    public static void changeState(String state){
+
+
+
+    }
     public void run() {
 
         while (true) {

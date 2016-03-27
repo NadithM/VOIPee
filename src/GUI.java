@@ -293,6 +293,7 @@ public class GUI extends javax.swing.JFrame {
             else if(States.ringing){
                 States.ringtone.stop();
                 try {
+
                     sock.send(packet);
                 } catch (IOException e) {
                     e.printStackTrace();
