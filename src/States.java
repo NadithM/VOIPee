@@ -26,7 +26,6 @@ public class States extends GUI implements Runnable {
    }
 
     public static void changeState(String stat){
-
         state=stat;
     }
     public void run() {
@@ -64,8 +63,9 @@ public class States extends GUI implements Runnable {
                                 jButton1.setText("ANSWER");
                                 GUI.packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
 
-                                ringtone=new Sound("C:\\Users\\Nadith\\IdeaProjects\\Copy\\src\\viber.wav");
+                                ringtone=new Sound("E:\\Users\\Rama\\VOIPee\\src\\viber.wav");
                                ringtone.loop();
+
 
 
                             }

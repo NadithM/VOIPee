@@ -285,6 +285,7 @@ public class GUI extends javax.swing.JFrame {
 
                 States.waitforcall=false;
                 States.oncall=true;
+                States.changeState("oncall");
                 jButton1.setText("END CALL");
 
 
@@ -295,6 +296,9 @@ public class GUI extends javax.swing.JFrame {
                 try {
 
                     sock.send(packet);
+                    byte[] req = "change state".getBytes();
+                    DatagramPacket pack = new DatagramPacket(req, req.length, packet.getAddress(), 30000);
+                    sock.send(pack);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
