@@ -93,7 +93,6 @@ public class VOIPee{
         newcallmic.stopCapture=true;
 
         oncall=false;
-        States.state="waitforcall";
        // newcallmic.setempty();
        //newcallSpeaker.setempty();
         //

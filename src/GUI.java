@@ -294,11 +294,11 @@ public class GUI extends javax.swing.JFrame {
             else if(States.ringing){
                 States.ringtone.stop();
                 try {
-
-                    sock.send(packet);
+    //                if(sock.isClosed()) sock = new DatagramSocket(CTRLPORT);
+                    States.socket.send(packet);
                     byte[] req = "change state".getBytes();
                     DatagramPacket pack = new DatagramPacket(req, req.length, packet.getAddress(), 30000);
-                    sock.send(pack);
+                    States.socket.send(pack);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -337,7 +337,7 @@ public class GUI extends javax.swing.JFrame {
                 States.oncall=false;
                 States.waitforcall=true;
                 States.changeState("waitforcall");
-
+                System.out.println(States.state);
                 Thread.sleep(1000);
 
                 jLabel1.setText("ONLINE");

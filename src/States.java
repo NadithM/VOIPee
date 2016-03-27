@@ -3,11 +3,11 @@
  */
 import java.net.* ;
 
-public class States extends GUI implements Runnable {
+public class States implements Runnable {
 
     private final static int packetsize = 500;
     public static String state="waitforcall";
-    private DatagramSocket socket=null;
+    public static DatagramSocket socket=null;
     private String ip;
 
 
@@ -48,19 +48,19 @@ public class States extends GUI implements Runnable {
 
 
                             // Return the packet to the sender
-
-
-                            if(new String(packet.getData()).contains("Can I call?")){
+                            if(new String(packet.getData()).contains("change state")){
+                                state = "oncall";
+                            } else if(new String(packet.getData()).contains("Can I call?")){
 
                                 States.waitforcall=false;
                                 States.ringing=true;
 
-                                jLabel1.setBackground(new java.awt.Color(0,153,0));
-                                jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
-                                jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-                                jLabel1.setText("CALL FROM "+packet.getAddress().toString().substring(1));
+                                GUI.jLabel1.setBackground(new java.awt.Color(0,153,0));
+                                GUI.jLabel1.setFont(new java.awt.Font("SansSerif", 0, 36)); // NOI18N
+                                GUI.jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                                GUI.jLabel1.setText("CALL FROM "+packet.getAddress().toString().substring(1));
                                 changeState("ringing");
-                                jButton1.setText("ANSWER");
+                                GUI.jButton1.setText("ANSWER");
                                 GUI.packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
 
                                 ringtone=new Sound("E:\\Users\\Rama\\VOIPee\\src\\viber.wav");
@@ -90,8 +90,9 @@ public class States extends GUI implements Runnable {
                     try {
 
                         // Convert the argument to ensure that is it valid
-                        if(this.socket.isClosed()) this.socket = new DatagramSocket(GUI.CTRLPORT) ;
-                        else  {
+                        if(this.socket.isClosed()) {
+                            this.socket = new DatagramSocket(GUI.CTRLPORT);
+                        }else  {
 
                             // Create a packet
                             DatagramPacket packet = new DatagramPacket(new byte[packetsize], packetsize);
@@ -108,13 +109,15 @@ public class States extends GUI implements Runnable {
                            // System.out.println(callEnd.equals(packdata));
                             if(packdata.contains(callEnd)) {
                                // System.out.println("  .... ");
+                                packet.setAddress(packet.getAddress());
+                                packet.setPort(30000);
+                                socket.send(packet);
                                 changeState("waitforcall");
 
-                                jButton1.setText("CALL");
-                                voice.end();
-                            }
-
-                            else {
+                                GUI.jButton1.setText("CALL");
+                                GUI.voice.end();
+                                System.out.println(state);
+                            } else {
                                 byte[] req = "Busy".getBytes();
 
 
@@ -124,13 +127,13 @@ public class States extends GUI implements Runnable {
                                 socket.send(packet);
 
                             }
-                            socket.close();
+
 
                         }
 
 
                     }catch (Exception e) {
-                        socket.close();
+
                         System.out.println(e);
                         e.printStackTrace();
                         return;
@@ -140,9 +143,7 @@ public class States extends GUI implements Runnable {
                     States.waitforcall=true;
                     States.oncall=false;
 
-
-
-                break;
+                    break;
 
 
             }
