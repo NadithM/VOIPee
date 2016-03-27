@@ -20,10 +20,14 @@ public class Speaker implements Runnable {
     public static ByteArrayInputStream byteArrayInputStream;
     public static boolean playfinal=false;
     public AudioFormat audioFormat;
+    private static int windowsize=16; //me deka wenas kara kara balapan
     public static int playstart=0;
-    public static int playstop=2000;
-    public static boolean[] window=new boolean[4];
-    public static byte [] got={0,1,2,3};// first index  does not read some how,So I put first index as -1 to pass that, then
+    private static int waittime=200;  //me deka wenas kara kara balapan
+    public static boolean[] window=new boolean[windowsize];
+
+    // first index  does not read some how,So I put first index as -1 to pass that, then
+    static byte [] got=new byte[windowsize];
+
     // it will read other 4 numbers and give the which packets server wating for
     public static long timer;
 
@@ -31,19 +35,26 @@ public class Speaker implements Runnable {
     //AudioInputStream audioInputStream;
     public SourceDataLine sourceDataLine;
     byte tempBuffer1[] = new byte[501];
-    public static byte  tempBuffer[][] = new byte[4][500];
+    public static byte  tempBuffer[][] = new byte[windowsize][500];
 
-    public static byte tempBufferfinal[] = new byte[2000];
+    public static byte tempBufferfinal[] = new byte[(500*windowsize)];
 
     public Speaker(DatagramSocket sock){
         this.socket = sock;
         this.stopPlay=false;
+        for(int i=0;i<windowsize;i++){
+
+            got[i]=(byte) i;
+
+        }
+        System.out.print("size"+windowsize);
     }
     public void setempty(){
-        got[0]=0;
-        got[1]=1;
-        got[2]=2;
-        got[3]=3;
+        for(int i=0;i<windowsize;i++){
+
+            got[i]=(byte) i;
+
+        }
 
     }
 
@@ -156,7 +167,7 @@ public class Speaker implements Runnable {
        // System.out.println(  " packet accepted or not :  "+ got[0] +got[1] +got[2] +got[3] +"  " + targetValue +" place "+ a);//using a byte
 
         //a get the value of which index of the window came throgh the packet
-        if(a>=0 && a<4 ) window[a]=true;
+        if(a>=0 && a<windowsize ) window[a]=true;
         else return false;
         byteArrayInputStream= new ByteArrayInputStream(tempbuff) ;
         int temp=byteArrayInputStream.read(tempBuffer[a],0,500);
@@ -169,9 +180,9 @@ public class Speaker implements Runnable {
             if(window[t]==true) trues++;
         }
         long curTime = System.currentTimeMillis();
-        if(trues==4 || (curTime-timer)>200) {//waing for all 4 packets .if not after 200ms playing.
+        if(trues==windowsize || (curTime-timer)>waittime) {//waing for all 4 packets .if not after 200ms playing.
 
-           for(int f=0; f<got.length; f++) got[f]+=4;
+           for(int f=0; f<got.length; f++) got[f]+=windowsize;
 
             copySmallArraysToBigArray();
           //  System.out.println("final buffer to play "+tempBufferfinal.toString());
