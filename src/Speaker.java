@@ -7,9 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Arrays;
 
-/**
- * Created by Rama on 2/27/2016.
- */
+
 public class Speaker implements Runnable {
 
     private DatagramSocket socket = null;
@@ -47,7 +45,7 @@ public class Speaker implements Runnable {
             got[i]=(byte) i;
 
         }
-        System.out.print("size"+windowsize);
+       // System.out.print("size"+windowsize);
     }
     public void setempty(){
         for(int i=0;i<windowsize;i++){
@@ -120,7 +118,7 @@ public class Speaker implements Runnable {
                 byte b = tempBuffer1[500];
 
 
-              // System.out.println( b + " packet received :  ");
+            //   System.out.println( b + " packet received  normal speaker:  ");
 
                 boolean play = useArraysBinarySearch(b ,tempBuffer1);//to check the packet squence
               //  System.out.println(play);

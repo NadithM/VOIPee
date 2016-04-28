@@ -1,6 +1,4 @@
-/**
- * Created by Nadith on 2/28/2016.
- */
+
 import java.net.* ;
 
 public class States implements Runnable {
@@ -9,8 +7,7 @@ public class States implements Runnable {
     public static String state="waitforcall";
     public static DatagramSocket socket=null;
     private String ip;
-    String multiIP = "225.4.5.6";
-    public static String [] IPs;
+     public static String [] IPs;
 
 
     public static boolean oncall=false;
@@ -18,9 +15,15 @@ public class States implements Runnable {
     public static boolean waitforcall=true;
     public static boolean isgroupcall=false;
     public static Sound ringtone;
+    public static  String grpID;
+    public static boolean islisten=false;
+    public static boolean isspeak=true;
+    public static String [] groupIPs;
+    public static int groupSize;
 
 
-   public States(String host,DatagramSocket sock){
+
+    public States(String host,DatagramSocket sock){
 
        this.ip=host;
        this.socket = sock;
@@ -64,9 +67,11 @@ public class States implements Runnable {
                                 GUI.jLabel1.setText("CALL FROM "+packet.getAddress().toString().substring(1));
                                 changeState("ringing");
                                 GUI.jButton1.setText("ANSWER");
+                                GUI.jButton1.setBackground(new java.awt.Color(0,150,51));
+
                                 GUI.packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
 
-                                ringtone=new Sound("E:\\Users\\Rama\\VOIPee\\src\\viber.wav");
+                                ringtone=new Sound("");
                                ringtone.loop();
 
 
@@ -74,7 +79,13 @@ public class States implements Runnable {
                             }else if(new String(packet.getData()).contains("let's group call?")){
 
                                 String IP = new String(packet.getData());
-                                String [] IPs = IP.split(",");
+                                IPs = IP.split(":");
+                                States.grpID=IPs[2];
+                                //System.out.println(States.IPs[0]+"----"+packet.getAddress().toString().substring(1)+"----"+States.IPs[2]+"----");
+
+                                groupIPs=IPs[1].split(",");
+
+                                States.groupSize=groupIPs.length;
 
 
                                 States.waitforcall=false;
@@ -86,11 +97,16 @@ public class States implements Runnable {
                                 GUI.jLabel1.setText("Group call");
                                 changeState("ringing");
                                 GUI.jButton1.setText("ANSWER");
-                                GUI.jTextField1.setText(IP.substring(17));
+                                GUI.jButton1.setBackground(new java.awt.Color(0,150,51));
+
+
+                                GUI.jTextField2.setText(IPs[1]);
+
+                                GUI.jTextField1.setText(IPs[2]);
                                 isgroupcall = true;
                                 GUI.packet = new DatagramPacket(req, req.length, packet.getAddress(), packet.getPort());
 
-                                ringtone=new Sound("E:\\Users\\Rama\\VOIPee\\src\\viber.wav");
+                                ringtone=new Sound("");
                                 ringtone.loop();
                             }
 
@@ -126,7 +142,7 @@ public class States implements Runnable {
                             socket.receive(packet);
 
                             // Print the packet
-                            System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
+                           // System.out.println(packet.getAddress() + " " + packet.getPort() + ": " + new String(packet.getData()));
                             String callEnd = new String("CallEnd");
                            String packdata = new String(packet.getData());
                            // System.out.print(callEnd + " " + packdata);
@@ -139,9 +155,13 @@ public class States implements Runnable {
                                 changeState("waitforcall");
 
                                 GUI.jButton1.setText("CALL");
+                                GUI.jButton1.setBackground(new java.awt.Color(0,201,51));
+
                                 GUI.voice.end();
                                 System.out.println(state);
                             } else {
+								
+				if(!isgroupcall){
                                 byte[] req = "Busy".getBytes();
 
 
@@ -149,7 +169,9 @@ public class States implements Runnable {
                                 System.out.println("waiting for call...");
                                 // Return the packet to the sender
                                 socket.send(packet);
-
+                                
+                                }
+                              
                             }
 
 

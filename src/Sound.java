@@ -14,12 +14,17 @@ public class Sound {
         // specify the sound to play
         // (assuming the sound can be played by the audio system)
         // from a wave File
+
+//for windows
         fileName = System.getProperty("user.dir")+"\\src\\viber.wav";
+
+//for linux
+ //fileName = System.getProperty("user.dir")+"//viber.wav";
+
         try {
             File file = new File(fileName);
             if (file.exists()) {
                 AudioInputStream sound = AudioSystem.getAudioInputStream(file);
-                // load the sound into memory (a Clip)
                 clip = AudioSystem.getClip();
                 clip.open(sound);
             }
@@ -47,7 +52,7 @@ public class Sound {
         // play, stop, loop the sound clip
     }
     public void play(){
-        clip.setFramePosition(0);  // Must always rewind!
+        clip.setFramePosition(0);
         clip.start();
     }
     public void loop(){

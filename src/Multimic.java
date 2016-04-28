@@ -1,17 +1,15 @@
-
-
+import javax.sound.sampled.*;
+import java.io.ByteArrayOutputStream;
 import javax.sound.sampled.*;
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 
 
-public class Mic implements Runnable {
+//This class is really not needed we can send multicast data packet using normal datagramsocket also.
+public class Multimic implements Runnable {
 
     private int PORT;
-    private DatagramSocket socket;
+    private MulticastSocket socket;
     private String HOST;
     public volatile boolean stopCapture = false;
     private static byte packet=0;
@@ -22,9 +20,13 @@ public class Mic implements Runnable {
     private SourceDataLine sourceDataLine;
     byte [] tempBuffer = new byte[501];
 
-    public Mic(int port, String IP) throws SocketException {
+    public Multimic(int port, String IP) throws SocketException {
         this.PORT = port;
-        this.socket = new DatagramSocket();
+        try {
+            this.socket = new MulticastSocket();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.HOST = IP;
         this.stopCapture=false;
     }
@@ -111,15 +113,15 @@ public class Mic implements Runnable {
             InetAddress host = InetAddress.getByName(HOST);
             DatagramPacket packet = new DatagramPacket(tempBuffer, tempBuffer.length, host, PORT);
             socket.send(packet);
-          //  System.out.println( "sent packet: " + packet);
+           // System.out.println( "sent packet: " + packet);
         }
         catch( Exception e ) {
-                System.out.println(e) ;
+            System.out.println(e) ;
             e.printStackTrace();
-            }
+        }
 
 
-            // Send the packet
+        // Send the packet
 
     }
 

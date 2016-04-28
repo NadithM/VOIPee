@@ -1,9 +1,7 @@
 import java.io.IOException;
 import java.net.*;
 
-/**
- * Created by Nadith on 2/24/2016.
- */
+
 public class VOIPee{
 
     public static final int PORT = 20000;
@@ -11,14 +9,15 @@ public class VOIPee{
     public Thread threadSpeaker;
     public Thread threadMic;
     public static Speaker newcallSpeaker;
+    public static MultiSpeak newcallMSpeaker;
+
     public static Mic newcallmic;
+    public static Mic   newcallMmic;
+
     public States userState;
 
     public Thread threadStates;
     public static DatagramSocket socket=null;
-    public static  String grpID;
-       public static boolean islisten=false;
-    public static boolean isspeak=true;
 
 
     public VOIPee(){
@@ -46,19 +45,18 @@ public class VOIPee{
 
     }
 
-    public void answergroup (String IP) throws SocketException {
+    public void answergroup () throws SocketException {
 
         try {
-            newcallSpeaker = new multiSpeaker(new MulticastSocket(20000));
+            newcallMSpeaker = new MultiSpeak(new MulticastSocket(20000));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        threadSpeaker = new Thread(newcallSpeaker);
+        threadSpeaker = new Thread(newcallMSpeaker);
         threadSpeaker.start();
 
-        System.out.println(States.IPs[States.IPs.length-2]);
-        newcallmic = new Mic(PORT, States.IPs[States.IPs.length-2]);
-        threadMic = new Thread(newcallmic);
+        newcallMmic = new Mic(PORT, States.grpID);
+        threadMic = new Thread(newcallMmic);
         threadMic.start();
 
     }
@@ -91,14 +89,16 @@ public class VOIPee{
 
             if (oncall) {
                 try {
-                    newcallSpeaker = new multiSpeaker(new MulticastSocket(PORT));
+                    newcallMSpeaker = new MultiSpeak(new MulticastSocket(PORT));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                threadSpeaker = new Thread(newcallSpeaker);
+                threadSpeaker= new Thread(newcallMSpeaker);
                 threadSpeaker.start();
-                newcallmic = new Mic(PORT, IP);
-                threadMic = new Thread(newcallmic);
+
+                newcallMmic = new Mic(PORT, States.grpID);
+                System.out.println("GrpID "+States.grpID);
+                threadMic = new Thread(newcallMmic);
                 threadMic.start();
                 States.state = "oncall";
                 States.oncall = true;
@@ -116,8 +116,8 @@ public class VOIPee{
             DatagramPacket packet = new DatagramPacket(req, req.length, host, GUI.CTRLPORT);
             sock.send(packet);
 
-        newcallSpeaker.stopPlay =true;
-        newcallmic.stopCapture=true;
+        newcallSpeaker.kill();
+        newcallmic.kill();
 
         oncall=false;
         States.state="waitforcall";
@@ -130,12 +130,23 @@ public class VOIPee{
 
     public void end (){
         System.out.println("cut");
-        newcallSpeaker.stopPlay =true;
-        newcallmic.stopCapture=true;
+        newcallSpeaker.kill();
+        newcallmic.kill();
 
         oncall=false;
-       // newcallmic.setempty();
-       //newcallSpeaker.setempty();
+        newcallmic.setempty();
+       newcallSpeaker.setempty();
+        //
+    }
+
+    public void groupend (){
+        System.out.println("cut");
+        newcallMSpeaker.kill();
+        newcallMmic.kill();
+
+        oncall=false;
+        newcallMmic.setempty();
+        newcallMSpeaker.setempty();
         //
     }
 
@@ -148,7 +159,7 @@ public class VOIPee{
             InetAddress host = InetAddress.getByName(IP) ;
             DatagramPacket packet = new DatagramPacket(req, req.length, host, GUI.CTRLPORT);
             sock.send(packet);
-            System.out.println("sent the request to call ."+ new String(packet.getData()));
+            //System.out.println("sent the request to call ."+ new String(packet.getData()));
 
 
             packet.setData( new byte[500] ) ;
@@ -156,7 +167,7 @@ public class VOIPee{
 
             sock.receive( packet ) ;
 
-            System.out.println("got the response to call ."+ new String(packet.getData()));
+           // System.out.println("got the response to call ."+ new String(packet.getData()));
 
             String pack = new String(packet.getData());
             if(pack.contains("ok")) {
@@ -184,13 +195,15 @@ public class VOIPee{
         DatagramSocket sock = null;
         try {
             String [] IP = IPs.split(",");
+
+            States.groupSize=IP.length;
             sock = new DatagramSocket();
-            byte[] req= ("let's group call?," + IPs + ",225.10.10.10,").getBytes();
+            byte[] req= ("let's group call?:" + IPs + ":"+States.grpID).getBytes();
             for(int i = 0; i<IP.length; i++) {
                 InetAddress host = InetAddress.getByName(IP[i]);
                 DatagramPacket packet = new DatagramPacket(req, req.length, host, GUI.CTRLPORT);
                 sock.send(packet);
-                System.out.println("sent the request to call ." + new String(packet.getData()));
+               // System.out.println("sent the request to call ." + new String(packet.getData()));
             }
                 return true;
 
